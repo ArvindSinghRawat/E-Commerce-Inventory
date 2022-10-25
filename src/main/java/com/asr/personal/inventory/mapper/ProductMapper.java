@@ -24,8 +24,10 @@ public interface ProductMapper {
   @InheritInverseConfiguration(name = "mapProductFromResponse")
   ProductResponseDto mapProductResponseDtoFromProduct(Product source);
 
+  @Mapping(target = "id", ignore = true)
   void updateProduct(@MappingTarget Product target, ProductRequestDto source);
 
+  @Mapping(target = "id", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void patchProduct(@MappingTarget Product target, ProductRequestDto source);
 }
