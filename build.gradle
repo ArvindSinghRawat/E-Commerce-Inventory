@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.5'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'java'
+    id "com.netflix.dgs.codegen" version "5.2.4"
 }
 
 sonarqube {
@@ -13,16 +14,25 @@ sonarqube {
     }
 }
 
+generateJava {
+    schemaPaths = ["${projectDir}/src/main/resources/schema"]
+    // List of directories containing schema files
+    packageName = 'com.asr.personal.inventory.dto.graphql'
+    // The package name to use to generate sources
+    generateClient = false // Enable generating the type safe query API
+    typeMapping = ["BigDecimal": "java.math.BigDecimal"]
+}
+
 compileJava {
-    options.compilerArgs += [
-            '-Amapstruct.defaultComponentModel=spring',
-            '-Amapstruct.defaultInjectionStrategy'
-    ]
+    options.compilerArgs += ['-Amapstruct.defaultComponentModel=spring',
+                             '-Amapstruct.defaultInjectionStrategy']
 }
 
 group = 'com.asr.personal'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = JavaVersion.VERSION_11
+
+ext['kotlin.version'] = '1.4.31'
 
 configurations {
     compileOnly {
@@ -35,6 +45,9 @@ repositories {
 }
 
 dependencies {
+//    GraphQL dependencies
+    implementation "com.netflix.graphql.dgs:graphql-dgs-webflux-starter"
+    implementation 'com.graphql-java:graphql-java-extended-scalars'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -47,6 +60,12 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.5.3.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release'
+    }
 }
 
 tasks.named('test') {
