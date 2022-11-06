@@ -4,7 +4,6 @@ import com.asr.personal.inventory.dto.ProductRequestDto;
 import com.asr.personal.inventory.dto.ProductResponseDto;
 import com.asr.personal.inventory.entity.Product;
 import com.asr.personal.inventory.mapper.ProductMapper;
-import com.asr.personal.inventory.repository.ProductRepository;
 import com.asr.personal.inventory.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,52 +18,48 @@ import reactor.core.publisher.Mono;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ProductServiceImpl implements ProductService {
 
-  ProductRepository productRepository;
+  BaseProductServiceImpl baseProductService;
 
   ProductMapper productMapper;
 
   @Override
   public Mono<ProductResponseDto> createProduct(ProductRequestDto productRequestDto) {
     Product product = productMapper.mapProductFromRequest(productRequestDto);
-    return productRepository
-        .save(product)
+    return baseProductService
+        .createProduct(product)
         .map(productMapper::mapProductResponseDtoFromProduct);
   }
 
   @Override
   public Mono<ProductResponseDto> getProductById(String productId) {
-    return productRepository
-        .findById(productId)
+    return baseProductService
+        .getProductById(productId)
         .map(productMapper::mapProductResponseDtoFromProduct);
   }
 
   @Override
   public Mono<ProductResponseDto> deleteProductById(String productId) {
-    return productRepository
-        .findById(productId)
-        .doOnSuccess(productRepository::delete)
+    return baseProductService
+        .deleteProductById(productId)
         .map(productMapper::mapProductResponseDtoFromProduct);
   }
 
   @Override
   public Mono<ProductResponseDto> updateProductById(
       final String productId, final ProductRequestDto request, final boolean isPatch) {
-    return productRepository
-        .findById(productId)
-        .doOnSuccess(product -> {
-          if (isPatch) {
-            productMapper.patchProduct(product, request);
-          } else {
-            productMapper.updateProduct(product, request);
-          }
-        })
-        .flatMap(productRepository::save)
+    return baseProductService
+        .updateProductById(
+            productId,
+            isPatch ? product -> productMapper.patchProduct(product, request)
+                    : product -> productMapper.updateProduct(product, request)
+        )
         .map(productMapper::mapProductResponseDtoFromProduct);
   }
 
   @Override
   public Flux<ProductResponseDto> getAllProducts(Pageable pageable) {
-    return productRepository.findAll(pageable)
+    return baseProductService
+        .getAllProducts(pageable)
         .map(productMapper::mapProductResponseDtoFromProduct);
   }
 }
