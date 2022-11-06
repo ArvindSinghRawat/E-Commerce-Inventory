@@ -9,7 +9,9 @@ import com.asr.personal.inventory.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -57,6 +59,12 @@ public class ProductServiceImpl implements ProductService {
           }
         })
         .flatMap(productRepository::save)
+        .map(productMapper::mapProductResponseDtoFromProduct);
+  }
+
+  @Override
+  public Flux<ProductResponseDto> getAllProducts(Pageable pageable) {
+    return productRepository.findAll(pageable)
         .map(productMapper::mapProductResponseDtoFromProduct);
   }
 }
