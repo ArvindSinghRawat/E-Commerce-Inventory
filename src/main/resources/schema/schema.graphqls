@@ -1,0 +1,19 @@
+type Query {
+    productById(id: String) : Product
+    products: [Product]
+}
+
+input ProductInput {
+    name: String!
+    price: BigDecimal
+    brand: String
+}
+
+scalar BigDecimal
+
+type Product {
+    id: String
+    name: String!
+    price: BigDecimal
+    brand: String
+}
