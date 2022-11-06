@@ -1,13 +1,12 @@
 package com.asr.personal.inventory.graphql.data.fetcher;
 
-import com.asr.personal.inventory.dto.ProductResponseDto;
-import com.asr.personal.inventory.service.ProductService;
+import com.asr.personal.inventory.dto.graphql.types.Product;
+import com.asr.personal.inventory.dto.graphql.types.ProductInput;
+import com.asr.personal.inventory.graphql.service.GqlProductService;
 import com.netflix.graphql.dgs.DgsComponent;
+import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,16 +22,35 @@ import reactor.core.publisher.Mono;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ProductDataFetcher {
 
-  ProductService productService;
+  GqlProductService productService;
 
   @DgsQuery
-  public Mono<ProductResponseDto> productById(
-      @Valid @NotBlank @NotNull @InputArgument String id) {
+  public Mono<Product> productById(@InputArgument String id) {
     return productService.getProductById(id);
   }
 
   @DgsQuery
-  public Flux<ProductResponseDto> products() {
+  public Flux<Product> products() {
     return productService.getAllProducts(PageRequest.of(0, 1, Sort.by("name")));
+  }
+
+  @DgsMutation
+  Mono<Product> addProduct(@InputArgument ProductInput product) {
+    return productService.createProduct(product);
+  }
+
+  @DgsMutation
+  Mono<Product> patchProduct(@InputArgument ProductInput product, @InputArgument String id) {
+    return productService.updateProductById(id, product, true);
+  }
+
+  @DgsMutation
+  Mono<Product> updateProduct(@InputArgument ProductInput product, @InputArgument String id) {
+    return productService.updateProductById(id, product, false);
+  }
+
+  @DgsMutation
+  Mono<Product> deleteProduct(@InputArgument String id) {
+    return productService.deleteProductById(id);
   }
 }

@@ -3,6 +3,13 @@ type Query {
     products: [Product]
 }
 
+type Mutation {
+    addProduct(product: ProductInput): Product
+    updateProduct(product: ProductInput, id: String) : Product
+    patchProduct(product: ProductInput, id: String): Product
+    deleteProduct(id: String): Product
+}
+
 input ProductInput {
     name: String!
     price: BigDecimal
