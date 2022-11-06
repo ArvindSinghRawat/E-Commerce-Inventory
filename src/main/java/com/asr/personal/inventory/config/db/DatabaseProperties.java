@@ -1,4 +1,4 @@
-package com.asr.personal.inventory.config;
+package com.asr.personal.inventory.config.db;
 
 import lombok.AccessLevel;
 import lombok.Getter;
